@@ -15,6 +15,7 @@
   import { contentLoading, searchKeyword } from "./lib/store";
   import FormKepatuhanPress from "./lib/routes/form-kepatuhan-press.svelte";
   import { getSelectItems } from "./lib/services/kepatuhan-karyawan";
+  import AutoImportLogs from "./lib/routes/auto-import-logs.svelte";
   moment.locale("id");
 
   const navItems = [
@@ -47,6 +48,12 @@
       slug: "kepatuhan-welding",
       icon: "mdi:user-tie",
       component: NotFound,
+    },
+    {
+      label: "Auto Import Logs",
+      slug: "auto-import-logs",
+      icon: "icon-park-outline:upload-logs",
+      component: AutoImportLogs,
     },
   ];
   const groupBy = (item: any) => item?.group;
