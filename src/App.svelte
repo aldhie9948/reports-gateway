@@ -160,8 +160,4 @@
   .active {
     @apply bg-gradient-to-b from-slate-700 to-slate-800 text-slate-200;
   }
-
-  .input {
-    @apply outline-none bg-transparent rounded font-light placeholder:text-xs placeholder:italic w-full flex-grow;
-  }
 </style>
