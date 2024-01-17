@@ -23,4 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-*env*
+# Ignore production environment file
+.env.production
+
+# Ignore development environment file
+.env.development
