@@ -1,0 +1,62 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  @apply text-sm bg-gradient-to-bl from-slate-500 to-slate-600;
+}
+
+@media print {
+  .portal-laporan {
+    @apply ml-5;
+  }
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  body {
+    @apply m-0 p-0 from-white to-white;
+  }
+
+  tr,
+  th,
+  td {
+    @apply !border-black;
+  }
+
+  .part,
+  .operator {
+    @apply max-w-[15rem] !whitespace-normal;
+  }
+
+  ::-webkit-scrollbar {
+    @apply hidden;
+  }
+}
+
+::-webkit-scrollbar {
+  @apply h-2 w-2;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-400 rounded-full;
+}
