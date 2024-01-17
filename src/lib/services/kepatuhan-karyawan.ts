@@ -11,8 +11,8 @@ export async function getSelectItems(text: string) {
       API_URL.concat("/press/select/", text)
     )) as { data: ISelectItems[] };
     const formatted = data.map((d) => {
-      const date = moment.utc(d.value).format("DD-MM-YYYY");
-      const group = moment.utc(d.value).format("MMMM");
+      const date = moment(d.value).utc(true).format("DD-MM-YYYY");
+      const group = moment(d.value).utc(true).format("MMMM");
       return { value: d.value, label: date, group };
     });
     return formatted as ISelectItems[];

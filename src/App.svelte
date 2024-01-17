@@ -17,6 +17,7 @@
   import { getSelectItems } from "./lib/services/kepatuhan-karyawan";
   import AutoImportLogs from "./lib/routes/auto-import-logs.svelte";
   moment.locale("id");
+  let placeholderSelect: string = "";
 
   const navItems = [
     {
@@ -65,18 +66,22 @@
     return async (text: string) => {
       try {
         if (currentNav === "portal-laporan") {
+          placeholderSelect = "Cari nama part item..";
           const lists = await findReports(text);
           return lists.map((r) => ({
             value: r.kode_barang,
             label: r.nama_barang.concat(" | ", r.kode_barang),
           }));
         } else if (currentNav === "laporan-produksi") {
+          placeholderSelect = "Cari nomor plan..";
           const lists = await getPlansList(text);
           return lists;
         } else if (currentNav === "rencana-produksi") {
+          placeholderSelect = "Cari nomor plan..";
           const lists = await findPlanProduction(text);
           return lists;
         } else if (currentNav === "kepatuhan-press") {
+          placeholderSelect = "Cari tanggal (ex: 01-12-2023)";
           return await getSelectItems(text);
         }
 
@@ -97,6 +102,25 @@
   $: navigate(selectedNav);
   $: selectedNav, ($searchKeyword = "");
   $: selectedNav, (selectedValue = null);
+  $: {
+    switch (selectedNav) {
+      case "portal-laporan":
+        placeholderSelect = "Cari nama part item..";
+        break;
+      case "laporan-produksi":
+        placeholderSelect = "Cari nomor plan produksi..";
+        break;
+      case "rencana-produksi":
+        placeholderSelect = "Cari nomor plan produksi..";
+        break;
+      case "kepatuhan-press":
+        placeholderSelect = "Cari tanggal (ex: 01-12-2023)";
+        break;
+      default:
+        placeholderSelect = "";
+        break;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -137,7 +161,7 @@
         bind:justValue={$searchKeyword}
         bind:value={selectedValue}
         loadOptions={loadOptinsHandler(selectedNav)}
-        placeholder="Cari nomor plan, nama part, atau tanggal"
+        placeholder={placeholderSelect}
       />
       <button
         on:click={printPage}
