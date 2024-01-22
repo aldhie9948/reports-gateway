@@ -1,11 +1,13 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { getPlanDetail } from "../services/laporan-produksi";
   import { contentLoading, searchKeyword } from "../store";
   import type { ILaporanProduksi } from "../types";
-  import { utcToDate } from "../utils";
+  import { getURLSearchParams, utcToDate } from "../utils";
 
   let reports: ILaporanProduksi[] = [];
   let reportSample: ILaporanProduksi;
+  let planId: string;
 
   async function fetchPlan(planId: string) {
     try {
@@ -17,7 +19,12 @@
     }
   }
 
-  $: fetchPlan($searchKeyword);
+  onMount(() => {
+    const params = getURLSearchParams();
+    planId = params.get("plan") as string;
+  });
+
+  $: fetchPlan($searchKeyword || planId);
   $: if (Array.isArray(reports) && reports.length > 0) {
     reportSample = reports[0];
   } else {

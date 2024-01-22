@@ -34,3 +34,9 @@ export function numberFormat(nominal: string) {
 export function reduce(data: any[], field: string): number {
   return data.reduce((a, b) => a + Number(b[field]), 0);
 }
+
+export function getURLSearchParams() {
+  const currentURL = window.location.search;
+  const urlSearchParams = new URLSearchParams(currentURL);
+  return urlSearchParams;
+}

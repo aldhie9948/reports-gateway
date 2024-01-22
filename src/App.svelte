@@ -12,10 +12,19 @@
   import { getPlansList } from "./lib/services/laporan-produksi";
   import { findReports } from "./lib/services/portal-laporan";
   import { findPlanProduction } from "./lib/services/rencana-produksi";
-  import { contentLoading, searchKeyword } from "./lib/store";
+  import {
+    contentLoading,
+    kepatuhanPressFetchType,
+    searchKeyword,
+    selectedValue,
+  } from "./lib/store";
   import FormKepatuhanPress from "./lib/routes/form-kepatuhan-press.svelte";
-  import { getSelectItems } from "./lib/services/kepatuhan-karyawan";
+  import {
+    getSelectItemsByDate,
+    getSelectItemsByWorker,
+  } from "./lib/services/kepatuhan-karyawan";
   import AutoImportLogs from "./lib/routes/auto-import-logs.svelte";
+  import { onMount } from "svelte";
   moment.locale("id");
   let placeholderSelect: string = "";
 
@@ -58,34 +67,42 @@
     },
   ];
   const groupBy = (item: any) => item?.group;
-  let selectedNav: string = navItems[0].slug;
-  let selectedValue: any;
-  const openNav = (slug: string) => () => (selectedNav = slug);
+  let selectedNav: string = "";
+  let activeNav: string = "";
+  const openNav = (slug: string) => () => {
+    selectedNav = slug;
+    activeNav = slug;
+  };
 
   function loadOptinsHandler(currentNav: string) {
     return async (text: string) => {
       try {
-        if (currentNav === "portal-laporan") {
-          placeholderSelect = "Cari nama part item..";
-          const lists = await findReports(text);
-          return lists.map((r) => ({
-            value: r.kode_barang,
-            label: r.nama_barang.concat(" | ", r.kode_barang),
-          }));
-        } else if (currentNav === "laporan-produksi") {
-          placeholderSelect = "Cari nomor plan..";
-          const lists = await getPlansList(text);
-          return lists;
-        } else if (currentNav === "rencana-produksi") {
-          placeholderSelect = "Cari nomor plan..";
-          const lists = await findPlanProduction(text);
-          return lists;
-        } else if (currentNav === "kepatuhan-press") {
-          placeholderSelect = "Cari tanggal (ex: 01-12-2023)";
-          return await getSelectItems(text);
+        switch (currentNav) {
+          case "portal-laporan":
+            const lists = await findReports(text);
+            return lists.map((r) => ({
+              value: r.kode_barang,
+              label: r.nama_barang.concat(" | ", r.kode_barang),
+            }));
+          case "laporan-produksi":
+            return await getPlansList(text);
+          case "rencana-produksi":
+            return await findPlanProduction(text);
+          case "kepatuhan-press":
+            const byDate = await getSelectItemsByDate(text);
+            if (byDate.length > 0) {
+              $kepatuhanPressFetchType = "date";
+              return byDate;
+            }
+            const byWorker = await getSelectItemsByWorker(text);
+            if (byWorker.length > 0) {
+              $kepatuhanPressFetchType = "worker";
+              return byWorker;
+            }
+          default:
+            console.log("Current Nav is not available or undefined");
+            break;
         }
-
-        throw new Error("Current Nav is not available or undefined");
       } catch (error) {
         console.log("Load Options:", error);
         return [];
@@ -99,11 +116,25 @@
   const basepath = import.meta.env.VITE_BASEPATH;
   export let url = "";
 
+  onMount(() => {
+    const { pathname } = window.location;
+    if (pathname === "/") {
+      selectedNav = activeNav = navItems[0].slug;
+    } else {
+      const currentNavItem = navItems.find((item) => {
+        const regex = new RegExp(item.slug);
+        return regex.test(pathname);
+      });
+      if (!currentNavItem) return console.log("currentNavItem is undefined");
+      activeNav = currentNavItem.slug;
+    }
+  });
+
   $: navigate(selectedNav);
   $: selectedNav, ($searchKeyword = "");
-  $: selectedNav, (selectedValue = null);
+  $: selectedNav, ($selectedValue = undefined);
   $: {
-    switch (selectedNav) {
+    switch (activeNav || selectedNav) {
       case "portal-laporan":
         placeholderSelect = "Cari nama part item..";
         break;
@@ -114,7 +145,10 @@
         placeholderSelect = "Cari nomor plan produksi..";
         break;
       case "kepatuhan-press":
-        placeholderSelect = "Cari tanggal (ex: 01-12-2023)";
+        placeholderSelect = `Cari tanggal (ex: `.concat(
+          moment().format("DD-MM-YYYY"),
+          `), nama atau nik karyawan`
+        );
         break;
       default:
         placeholderSelect = "";
@@ -139,7 +173,7 @@
         <button
           on:click={openNav(item.slug)}
           class="btn"
-          class:active={item.slug === selectedNav}
+          class:active={item.slug === activeNav}
         >
           <Icon icon={item.icon} class="text-xl" />
           <h1>{item.label}</h1>
@@ -159,8 +193,8 @@
         loading
         {groupBy}
         bind:justValue={$searchKeyword}
-        bind:value={selectedValue}
-        loadOptions={loadOptinsHandler(selectedNav)}
+        bind:value={$selectedValue}
+        loadOptions={loadOptinsHandler(activeNav || selectedNav)}
         placeholder={placeholderSelect}
       />
       <button

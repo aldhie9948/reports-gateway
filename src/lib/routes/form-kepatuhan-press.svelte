@@ -1,37 +1,50 @@
 <script lang="ts">
   import moment from "moment";
   import { getKepatuhanPress } from "../services/kepatuhan-karyawan";
-  import { contentLoading, searchKeyword } from "../store";
-  import type { IKepatuhanPress } from "../types";
+  import {
+    contentLoading,
+    kepatuhanPressFetchType,
+    searchKeyword,
+  } from "../store";
+  import type { IKepatuhanPress, KepatuhanPressType } from "../types";
+  import { utcToDate } from "../utils";
 
   let formPress: IKepatuhanPress[] = [];
+  let tableType: KepatuhanPressType = "date";
   let selectedDate: string;
-  async function fetchData(date: string) {
+  async function fetchData(date: string, type: KepatuhanPressType) {
     try {
       $contentLoading = true;
-      formPress = await getKepatuhanPress(date);
+      formPress = await getKepatuhanPress(date, type);
       $contentLoading = false;
     } catch (error) {
       $contentLoading = false;
     }
   }
-  $: $searchKeyword, fetchData($searchKeyword);
+  $: $searchKeyword, fetchData($searchKeyword, tableType);
   $: selectedDate = $searchKeyword;
+  $: tableType = $kepatuhanPressFetchType as KepatuhanPressType;
 </script>
 
-<div class="overflow-auto mb-5">
+<div class="overflow-auto mb-5 pb-1">
   <table id="main">
     <thead class="header">
       <tr class="bg-white">
-        <th colspan="31" class="!border-none font-normal !p-0">
+        <th
+          colspan={tableType === "date" ? 32 : 33}
+          class="!border-none font-normal !p-0"
+        >
           <p class="text-right">FPK-PROD-41-02/R0</p>
         </th>
       </tr>
       <tr class="bg-white">
-        <th colspan="31" class="!border-none font-normal !p-0">
+        <th
+          colspan={tableType === "date" ? 32 : 33}
+          class="!border-none font-normal !p-0"
+        >
           <p class="text-left">
             TANGGAL :
-            {#if selectedDate}
+            {#if tableType === "date" && selectedDate}
               {moment(selectedDate).format("DD/MM/YYYY")}
             {:else}
               ..............................
@@ -40,14 +53,20 @@
         </th>
       </tr>
       <tr>
-        <th colspan="31">FORM KONTROL KEPATUHAN OPERATOR</th>
+        <th colspan={tableType === "date" ? 32 : 33}
+          >FORM KONTROL KEPATUHAN OPERATOR</th
+        >
       </tr>
     </thead>
     <tbody>
       <tr class="header">
         <td rowspan="3">NO</td>
+        {#if tableType === "worker"}
+          <td rowspan="3">TANGGAL</td>
+        {/if}
         <td rowspan="3">NAMA OPERATOR</td>
         <td rowspan="3">NIK</td>
+        <td rowspan="3">KODE MESIN</td>
         <td rowspan="3">PROSES</td>
         <td colspan="12">KONDISI SAFETY MESIN</td>
         <td colspan="6">KELENGKAPAN DAN SIKAP KERJA OPERATOR</td>
@@ -99,7 +118,7 @@
       </tr>
       {#if formPress.length < 1}
         <tr>
-          <td colspan="31">
+          <td colspan={tableType === "date" ? 32 : 33}>
             <p class="italic font-light">Data tidak ditemukan</p>
           </td>
         </tr>
@@ -107,15 +126,19 @@
         {#each formPress as item, i (item.id)}
           <tr class="content">
             <td><p class="text-center">{i + 1}</p></td>
+            {#if tableType === "worker"}
+              <td><p class="text-center">{utcToDate(item.tgl)}</p></td>
+            {/if}
             <td
-              ><p class="print:!max-w-[10rem] print:!whitespace-normal">
+              ><p class="print:!max-w-[8rem] print:!whitespace-normal">
                 {item.karyawan}
               </p></td
             >
-            <td><p class="text-center">{item.nik || "-"}</p></td>
+            <td><p>{item.nik || "-"}</p></td>
+            <td><p>{item.kode_mesin || "-"}</p></td>
             <td
               ><p class="print:max-w-[4rem] print:whitespace-normal">
-                {item.proses}
+                {item.proses || "-"}
               </p></td
             >
             <td
@@ -250,7 +273,7 @@
             >
             <td
               ><p class="print:max-w-[10rem] print:whitespace-normal">
-                {item.catatan}
+                {item.catatan || "-"}
               </p></td
             >
           </tr>

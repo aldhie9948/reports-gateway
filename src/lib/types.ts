@@ -8,6 +8,7 @@ export interface ISelectItems {
   label: string;
   value: string;
   group?: string;
+  type?: string;
 }
 
 export interface ILaporanProduksi {
@@ -64,6 +65,7 @@ export interface IKepatuhanPress {
   id: number;
   id_stok_masuk_detail: number;
   nik: string;
+  kode_mesin: string;
   karyawan: string;
   proses: string;
   checksheet: number;
@@ -83,3 +85,5 @@ export interface IKepatuhanPress {
   tgl: string;
   area: string;
 }
+
+export type KepatuhanPressType = "date" | "worker";

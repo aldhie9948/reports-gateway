@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import logo from "../../assets/logo.png";
   import {
     getPlanProduction,
@@ -6,10 +7,16 @@
   } from "../services/rencana-produksi";
   import { contentLoading, searchKeyword } from "../store";
   import type { IRencanaProduksi, IRencanaProduksiDetail } from "../types";
-  import { dateParsed, reduce, numberFormat } from "../utils";
+  import {
+    dateParsed,
+    reduce,
+    numberFormat,
+    getURLSearchParams,
+  } from "../utils";
 
   let planProductionInfo: IRencanaProduksi;
   let planProductionDetail: IRencanaProduksiDetail[] = [];
+  let planId: string;
 
   async function fetchData(planId: string) {
     try {
@@ -21,7 +28,12 @@
       $contentLoading = false;
     }
   }
-  $: fetchData($searchKeyword);
+
+  onMount(() => {
+    const params = getURLSearchParams();
+    planId = params.get("plan") as string;
+  });
+  $: fetchData($searchKeyword || planId);
 </script>
 
 <div class="w-full" id="print">
