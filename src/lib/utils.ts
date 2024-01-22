@@ -40,3 +40,9 @@ export function getURLSearchParams() {
   const urlSearchParams = new URLSearchParams(currentURL);
   return urlSearchParams;
 }
+
+export function getPlanIdFromURL() {
+  const params = getURLSearchParams();
+  const planId = params.get("plan") as string;
+  return planId;
+}

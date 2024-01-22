@@ -3,7 +3,7 @@
   import { getPlanDetail } from "../services/laporan-produksi";
   import { contentLoading, searchKeyword } from "../store";
   import type { ILaporanProduksi } from "../types";
-  import { getURLSearchParams, utcToDate } from "../utils";
+  import { getPlanIdFromURL, getURLSearchParams, utcToDate } from "../utils";
 
   let reports: ILaporanProduksi[] = [];
   let reportSample: ILaporanProduksi;
@@ -19,11 +19,7 @@
     }
   }
 
-  onMount(() => {
-    const params = getURLSearchParams();
-    planId = params.get("plan") as string;
-  });
-
+  $: planId = getPlanIdFromURL();
   $: fetchPlan($searchKeyword || planId);
   $: if (Array.isArray(reports) && reports.length > 0) {
     reportSample = reports[0];

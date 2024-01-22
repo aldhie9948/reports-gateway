@@ -12,6 +12,7 @@
     reduce,
     numberFormat,
     getURLSearchParams,
+    getPlanIdFromURL,
   } from "../utils";
 
   let planProductionInfo: IRencanaProduksi;
@@ -29,10 +30,7 @@
     }
   }
 
-  onMount(() => {
-    const params = getURLSearchParams();
-    planId = params.get("plan") as string;
-  });
+  $: planId = getPlanIdFromURL();
   $: fetchData($searchKeyword || planId);
 </script>
 
