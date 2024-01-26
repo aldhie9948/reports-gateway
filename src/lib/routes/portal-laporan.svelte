@@ -26,7 +26,7 @@
 </script>
 
 <div class="portal-laporan">
-  <table class="w-full">
+  <table class="w-full" id="table-portal-laporan">
     <tbody>
       <tr>
         <td colspan="13">

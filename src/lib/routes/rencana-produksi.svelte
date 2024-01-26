@@ -74,7 +74,7 @@
     on:mouseup={disableIsDown}
     on:mousemove={onMouseMove}
   >
-    <table class="w-full print:break-inside-auto" id="main-table">
+    <table class="w-full print:break-inside-auto" id="table-rencana-produksi">
       <thead>
         <th>No.</th>
         <th>Nama Part (No. Part)</th>
@@ -159,7 +159,7 @@
 </div>
 
 <style lang="scss">
-  #main-table {
+  #table-rencana-produksi {
     td,
     th,
     tr {
@@ -180,7 +180,7 @@
     }
   }
   @media print {
-    #main-table {
+    #table-rencana-produksi {
       td,
       th {
         white-space: normal !important;

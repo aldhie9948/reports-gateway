@@ -134,12 +134,14 @@
     window.print();
   }
 
-  function exportExcel(
-    e: Event & { currentTarget: HTMLAnchorElement & EventTarget }
-  ) {
-    const target = e.currentTarget;
-    const table = document.querySelector(exportedTableId) as HTMLTableElement;
-    ExcellentExport.excel(target, table, "Sheet1");
+  function exportExcel(tableId: string) {
+    return function (
+      e: Event & { currentTarget: HTMLAnchorElement & EventTarget }
+    ) {
+      const target = e.currentTarget;
+      const table = document.querySelector(tableId) as HTMLTableElement;
+      ExcellentExport.excel(target, table, "Sheet1");
+    };
   }
 
   const basepath = import.meta.env.VITE_BASEPATH;
@@ -166,24 +168,27 @@
     switch (activeNav || selectedNav) {
       case "portal-laporan":
         placeholderSelect = "Cari nama part item..";
-        exportedFilename = "Report Portal Laporan ".concat(
-          $searchKeyword,
+        exportedFilename = "Report Portal Laporan".concat(
+          $searchKeyword ? " " : "",
+          $searchKeyword || "",
           ".xls"
         );
         exportedTableId = "#table-portal-laporan";
         break;
       case "laporan-produksi":
         placeholderSelect = "Cari nomor plan produksi..";
-        exportedFilename = "Report Laporan Produksi ".concat(
-          $searchKeyword,
+        exportedFilename = "Report Laporan Produksi".concat(
+          $searchKeyword ? " " : "",
+          $searchKeyword || "",
           ".xls"
         );
         exportedTableId = "#table-laporan-produksi";
         break;
       case "rencana-produksi":
         placeholderSelect = "Cari nomor plan produksi..";
-        exportedFilename = "Report Rencana Produksi ".concat(
-          $searchKeyword,
+        exportedFilename = "Report Rencana Produksi".concat(
+          $searchKeyword ? " " : "",
+          $searchKeyword || "",
           ".xls"
         );
         exportedTableId = "#table-rencana-produksi";
@@ -193,8 +198,9 @@
           moment().format("DD-MM-YYYY"),
           `), nama atau nik karyawan`
         );
-        exportedFilename = "Report Kepatuhan Press ".concat(
-          $searchKeyword,
+        exportedFilename = "Report Kepatuhan Press".concat(
+          $searchKeyword ? " " : "",
+          $searchKeyword || "",
           ".xls"
         );
         exportedTableId = "#table-kepatuhan-press";
@@ -204,8 +210,9 @@
           moment().format("DD-MM-YYYY"),
           `), nama atau nik karyawan`
         );
-        exportedFilename = "Report Kepatuhan Welding ".concat(
-          $searchKeyword,
+        exportedFilename = "Report Kepatuhan Welding".concat(
+          $searchKeyword ? " " : "",
+          $searchKeyword || "",
           ".xls"
         );
         exportedTableId = "#table-kepatuhan-welding";
@@ -266,7 +273,7 @@
       <!-- svelte-ignore a11y-missing-attribute -->
       <a
         download={exportedFilename}
-        on:click={exportExcel}
+        on:click={exportExcel(exportedTableId)}
         class="btn-header"
         title="Export to excel"
       >

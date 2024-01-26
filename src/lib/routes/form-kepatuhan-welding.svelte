@@ -40,7 +40,7 @@
   on:mouseup={disableIsDown}
   on:mousemove={onMouseMove}
 >
-  <table id="main">
+  <table id="table-kepatuhan-welding">
     <thead class="header">
       <tr class="bg-white">
         <th
@@ -308,7 +308,7 @@
 </div>
 
 <style lang="scss">
-  #main {
+  #table-kepatuhan-welding {
     @apply w-full;
     .header {
       @apply bg-slate-500/30 font-bold;
@@ -344,7 +344,7 @@
   }
 
   @media print {
-    #main {
+    #table-kepatuhan-welding {
       font-size: 10px !important;
       line-height: 1rem;
       td,
