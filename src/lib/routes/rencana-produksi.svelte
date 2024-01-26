@@ -67,7 +67,7 @@
 
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
-    class="w-full overflow-auto py-2 my-2"
+    class="w-full overflow-auto py-2 my-2 px-1"
     id="parent-table"
     on:mousedown={onMouseDown}
     on:mouseleave={disableIsDown}
@@ -124,7 +124,7 @@
       </tbody>
     </table>
   </div>
-  <div class="flex justify-end mb-5">
+  <div class="flex justify-end mb-5 px-1">
     <table class="w-fit" id="footer-table">
       <tbody>
         <tr class="text-center">

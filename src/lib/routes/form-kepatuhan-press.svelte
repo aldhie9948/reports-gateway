@@ -33,7 +33,7 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-  class="overflow-auto mb-5 pb-1"
+  class="overflow-auto mb-5 px-1 pb-1"
   id="parent-table"
   on:mousedown={onMouseDown}
   on:mouseleave={disableIsDown}
@@ -295,8 +295,7 @@
     </tbody>
   </table>
 </div>
-
-<div class="flex items-center justify-end">
+<div class="flex items-center justify-end px-1">
   <table id="footer">
     <thead>
       <tr>

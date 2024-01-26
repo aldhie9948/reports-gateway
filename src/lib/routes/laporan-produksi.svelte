@@ -33,7 +33,7 @@
 <div class="w-full print:pb-20">
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
-    class="overflow-auto mb-2"
+    class="overflow-auto mb-2 px-1 pb-1"
     id="parent-table"
     on:mousedown={onMouseDown}
     on:mouseleave={disableIsDown}
@@ -135,8 +135,8 @@
               <td>
                 {report.OK - report.NG < 1 ? "-" : report.OK - report.NG}</td
               >
-              <td class="!text-left print:whitespace-normal print:w-40"
-                ><p class="">
+              <td class="!text-left print:whitespace-normal print:w-40 w-20"
+                ><p>
                   {report.keterangan}
                 </p></td
               >
@@ -147,7 +147,7 @@
       </tbody>
     </table>
   </div>
-  <div class="flex justify-end">
+  <div class="flex justify-end px-1">
     <table class="text-center lg:w-fit w-full footer">
       <tr class="font-bold">
         <td><p class="lg:w-36">Disetujui</p></td>

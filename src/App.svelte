@@ -138,6 +138,7 @@
     return function (
       e: Event & { currentTarget: HTMLAnchorElement & EventTarget }
     ) {
+      if (!tableId || !exportedFilename) return e.preventDefault();
       const target = e.currentTarget;
       const table = document.querySelector(tableId) as HTMLTableElement;
       ExcellentExport.excel(target, table, "Sheet1");
@@ -219,6 +220,8 @@
         break;
       default:
         placeholderSelect = "";
+        exportedFilename = "";
+        exportedTableId = "";
         break;
     }
   }
