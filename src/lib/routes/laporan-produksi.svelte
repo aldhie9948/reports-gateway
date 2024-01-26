@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { getPlanDetail } from "../services/laporan-produksi";
-  import { contentLoading, searchKeyword } from "../store";
+  import { contentLoading, searchKeyword, showHeader } from "../store";
   import type { ILaporanProduksi } from "../types";
   import { getPlanIdFromURL, getURLSearchParams, utcToDate } from "../utils";
+  import { disableIsDown, onMouseDown, onMouseMove } from "../drag-scoll";
 
   let reports: ILaporanProduksi[] = [];
   let reportSample: ILaporanProduksi;
@@ -30,58 +31,59 @@
 </script>
 
 <div class="w-full print:pb-20">
-  <div class="text-center uppercase lg:text-3xl text-lg font-bold mb-5">
-    <h1>laporan produksi harian</h1>
-    <h1>(kepala seksi)</h1>
-  </div>
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
-    class="flex items-center justify-between lg:flex-row flex-col lg:mb-0 mb-3"
+    class="overflow-auto mb-2"
+    id="parent-table"
+    on:mousedown={onMouseDown}
+    on:mouseleave={disableIsDown}
+    on:mouseup={disableIsDown}
+    on:mousemove={onMouseMove}
   >
-    <div class="lg:hidden block w-full mb-3">
-      <div class="flex">
-        <p class="w-20">Shift</p>
-        <p class="font-bold">: {reportSample?.shift || "-"}</p>
-      </div>
-      <div class="flex">
-        <p class="w-20">Bagian</p>
-        <p class="font-bold">: {reportSample?.nama_area || "-"}</p>
-      </div>
-      <div class="flex">
-        <p class="w-20">No. Plan</p>
-        <p class="font-bold">: {reportSample?.lot || "-"}</p>
-      </div>
-      <div class="flex">
-        <p class="w-20">Tanggal</p>
-        <div class="font-bold flex">
-          <p>: {utcToDate(reportSample?.start) || "-"}</p>
-          <p class="mx-2">s/d</p>
-          <p>{utcToDate(reportSample?.finish) || "-"}</p>
-        </div>
-      </div>
-    </div>
-    <table class="header">
+    <table class="report" id="table-laporan-produksi">
       <tr>
-        <td class="w-28">Shift</td>
-        <td class="font-bold">: {reportSample?.shift || "-"}</td>
-        <td class="w-28">Bagian</td>
-        <td class="font-bold">: {reportSample?.nama_area || "-"}</td>
-      </tr>
-      <tr>
-        <td class="w-28">No. Plan</td>
-        <td class="font-bold">: {reportSample?.lot || "-"}</td>
-        <td class="w-28">Tanggal</td>
-        <td class="font-bold flex items-center">
-          <p>: {utcToDate(reportSample?.start) || "-"}</p>
-          <p class="mx-2">s/d</p>
-          <p>{utcToDate(reportSample?.finish) || "-"}</p>
+        <td colspan="18" class="border-none">
+          <p class="font-bold text-3xl">LAPORAN PRODUKSI HARIAN</p>
         </td>
       </tr>
-    </table>
-  </div>
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="overflow-auto mb-2">
-    <table class="report">
-      <thead>
+      <tr>
+        <td colspan="18" class="border-none">
+          <p class="font-bold text-3xl">(KEPALA SEKSI)</p>
+        </td>
+      </tr>
+      <tr><td colspan="18" class="border-none"><p class="py-1"></p></td></tr>
+      <tr class="font-bold">
+        <td colspan="2" class="border-none">
+          <p class="text-left">
+            <span class="inline-block w-20">Shift</span> : {reportSample?.shift ||
+              "-"}
+          </p>
+        </td>
+        <td colspan="3" class="border-none">
+          <p class="text-left">
+            <span class="inline-block w-20">Bagian</span> : {reportSample?.nama_area ||
+              "-"}
+          </p>
+        </td>
+      </tr>
+      <tr class="font-bold">
+        <td colspan="2" class="border-none">
+          <p class="text-left">
+            <span class="inline-block w-20">No. Plan</span> : {reportSample?.lot ||
+              "-"}
+          </p>
+        </td>
+        <td colspan="3" class="border-none">
+          <p class="text-left">
+            <span class="inline-block w-20">Tanggal</span> : {utcToDate(
+              reportSample?.start
+            ) || "-"} <span class="inline-block w-10 text-center">s/d</span>
+            {utcToDate(reportSample?.finish) || "-"}
+          </p>
+        </td>
+      </tr>
+
+      <tr class="thead">
         <th>No</th>
         <th>Nama Part</th>
         <th>Operator</th>
@@ -100,7 +102,7 @@
         <th>TOTAL</th>
         <th>Keterangan</th>
         <th>LOT</th>
-      </thead>
+      </tr>
       <tbody>
         {#if reports.length === 0}
           <tr>
@@ -167,13 +169,6 @@
 </div>
 
 <style lang="scss">
-  .header {
-    @apply lg:block hidden;
-    td:nth-child(even) {
-      @apply pr-10;
-    }
-  }
-
   .report {
     @apply w-full whitespace-nowrap my-1 break-inside-auto;
 
@@ -182,12 +177,11 @@
     }
 
     th,
-    tr,
     td {
       @apply border border-slate-800 py-1;
     }
 
-    thead {
+    .thead {
       @apply bg-slate-800/50;
     }
 

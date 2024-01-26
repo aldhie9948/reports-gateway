@@ -85,5 +85,30 @@ export interface IKepatuhanPress {
   tgl: string;
   area: string;
 }
+export interface IKepatuhanWelding {
+  id: number;
+  id_stok_masuk_detail: number;
+  tgl: string;
+  nik: string;
+  karyawan: string;
+  id_mesin: number;
+  proses: string;
+  checksheet: number;
+  verifikasi_setup: number;
+  sop: number;
+  topi_kerja: number;
+  sepatu_safety: number;
+  appron_dada: number;
+  masker: number;
+  alat_bantu_kerja: number;
+  oli_sampah: number;
+  line_mesin: number;
+  jig_proses: number;
+  history_card: number;
+  catatan: string;
+  area: string;
+  kode_mesin: string;
+}
 
-export type KepatuhanPressType = "date" | "worker";
+export type KepatuhanSearchType = "date" | "worker";
+export type KepatuhanMachineType = "press" | "welding" | "injection";

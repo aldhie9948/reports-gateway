@@ -2,29 +2,32 @@
   import Icon from "@iconify/svelte";
   import moment from "moment";
   import "moment/dist/locale/id";
+  import { onMount } from "svelte";
   import { Route, Router, navigate } from "svelte-routing";
   import Select from "svelte-select";
   import Loading from "./lib/components/loading.svelte";
+  import AutoImportLogs from "./lib/routes/auto-import-logs.svelte";
+  import FormKepatuhanPress from "./lib/routes/form-kepatuhan-press.svelte";
+  import FormKepatuhanWelding from "./lib/routes/form-kepatuhan-welding.svelte";
   import LaporanProduksi from "./lib/routes/laporan-produksi.svelte";
-  import NotFound from "./lib/routes/not-found.svelte";
   import PortalLaporan from "./lib/routes/portal-laporan.svelte";
   import RencanaProduksi from "./lib/routes/rencana-produksi.svelte";
+  import {
+    getSelectItemsByDate,
+    getSelectItemsByWorker,
+  } from "./lib/services/kepatuhan-karyawan";
   import { getPlansList } from "./lib/services/laporan-produksi";
   import { findReports } from "./lib/services/portal-laporan";
   import { findPlanProduction } from "./lib/services/rencana-produksi";
   import {
     contentLoading,
-    kepatuhanPressFetchType,
+    currentKepatuhanSearchType,
     searchKeyword,
     selectedValue,
+    showHeader,
   } from "./lib/store";
-  import FormKepatuhanPress from "./lib/routes/form-kepatuhan-press.svelte";
-  import {
-    getSelectItemsByDate,
-    getSelectItemsByWorker,
-  } from "./lib/services/kepatuhan-karyawan";
-  import AutoImportLogs from "./lib/routes/auto-import-logs.svelte";
-  import { onMount } from "svelte";
+  import ExcellentExport from "excellentexport";
+
   moment.locale("id");
   let placeholderSelect: string = "";
 
@@ -57,7 +60,7 @@
       label: "Kepatuhan Welding",
       slug: "kepatuhan-welding",
       icon: "mdi:user-tie",
-      component: NotFound,
+      component: FormKepatuhanWelding,
     },
     {
       label: "Auto Import Logs",
@@ -69,6 +72,8 @@
   const groupBy = (item: any) => item?.group;
   let selectedNav: string = "";
   let activeNav: string = "";
+  let exportedFilename: string = "";
+  let exportedTableId: string = "";
   const openNav = (slug: string) => () => {
     selectedNav = slug;
     activeNav = slug;
@@ -77,6 +82,7 @@
   function loadOptinsHandler(currentNav: string) {
     return async (text: string) => {
       try {
+        if (!text) return [];
         switch (currentNav) {
           case "portal-laporan":
             const lists = await findReports(text);
@@ -89,15 +95,29 @@
           case "rencana-produksi":
             return await findPlanProduction(text);
           case "kepatuhan-press":
-            const byDate = await getSelectItemsByDate(text);
-            if (byDate.length > 0) {
-              $kepatuhanPressFetchType = "date";
-              return byDate;
+            const byDatePress = await getSelectItemsByDate(text, "press");
+            if (byDatePress.length > 0) {
+              $currentKepatuhanSearchType = "date";
+              return byDatePress;
             }
-            const byWorker = await getSelectItemsByWorker(text);
-            if (byWorker.length > 0) {
-              $kepatuhanPressFetchType = "worker";
-              return byWorker;
+            const byWorkerPress = await getSelectItemsByWorker(text, "press");
+            if (byWorkerPress.length > 0) {
+              $currentKepatuhanSearchType = "worker";
+              return byWorkerPress;
+            }
+          case "kepatuhan-welding":
+            const byDateWelding = await getSelectItemsByDate(text, "welding");
+            if (byDateWelding.length > 0) {
+              $currentKepatuhanSearchType = "date";
+              return byDateWelding;
+            }
+            const byWorkerWelding = await getSelectItemsByWorker(
+              text,
+              "welding"
+            );
+            if (byWorkerWelding.length > 0) {
+              $currentKepatuhanSearchType = "worker";
+              return byWorkerWelding;
             }
           default:
             console.log("Current Nav is not available or undefined");
@@ -113,6 +133,15 @@
   function printPage() {
     window.print();
   }
+
+  function exportExcel(
+    e: Event & { currentTarget: HTMLAnchorElement & EventTarget }
+  ) {
+    const target = e.currentTarget;
+    const table = document.querySelector(exportedTableId) as HTMLTableElement;
+    ExcellentExport.excel(target, table, "Sheet1");
+  }
+
   const basepath = import.meta.env.VITE_BASEPATH;
   export let url = "";
 
@@ -137,18 +166,49 @@
     switch (activeNav || selectedNav) {
       case "portal-laporan":
         placeholderSelect = "Cari nama part item..";
+        exportedFilename = "Report Portal Laporan ".concat(
+          $searchKeyword,
+          ".xls"
+        );
+        exportedTableId = "#table-portal-laporan";
         break;
       case "laporan-produksi":
         placeholderSelect = "Cari nomor plan produksi..";
+        exportedFilename = "Report Laporan Produksi ".concat(
+          $searchKeyword,
+          ".xls"
+        );
+        exportedTableId = "#table-laporan-produksi";
         break;
       case "rencana-produksi":
         placeholderSelect = "Cari nomor plan produksi..";
+        exportedFilename = "Report Rencana Produksi ".concat(
+          $searchKeyword,
+          ".xls"
+        );
+        exportedTableId = "#table-rencana-produksi";
         break;
       case "kepatuhan-press":
         placeholderSelect = `Cari tanggal (ex: `.concat(
           moment().format("DD-MM-YYYY"),
           `), nama atau nik karyawan`
         );
+        exportedFilename = "Report Kepatuhan Press ".concat(
+          $searchKeyword,
+          ".xls"
+        );
+        exportedTableId = "#table-kepatuhan-press";
+        break;
+      case "kepatuhan-welding":
+        placeholderSelect = `Cari tanggal (ex: `.concat(
+          moment().format("DD-MM-YYYY"),
+          `), nama atau nik karyawan`
+        );
+        exportedFilename = "Report Kepatuhan Welding ".concat(
+          $searchKeyword,
+          ".xls"
+        );
+        exportedTableId = "#table-kepatuhan-welding";
         break;
       default:
         placeholderSelect = "";
@@ -197,13 +257,22 @@
         loadOptions={loadOptinsHandler(activeNav || selectedNav)}
         placeholder={placeholderSelect}
       />
-      <button
-        on:click={printPage}
-        class="flex items-center gap-2 bg-gradient-to-b from-green-500 to-green-600 text-slate-100 px-8 py-3 rounded-lg font-semibold duration-200 active:scale-90"
-      >
+      <button on:click={printPage} class="btn-header">
         <Icon icon="material-symbols:print" class="text-lg" />
         <h1>Cetak</h1>
       </button>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <!-- svelte-ignore a11y-missing-attribute -->
+      <a
+        download={exportedFilename}
+        on:click={exportExcel}
+        class="btn-header"
+        title="Export to excel"
+      >
+        <Icon icon="icon-park-outline:excel" class="text-lg" />
+        <h1>Export</h1>
+      </a>
     </div>
     <div
       class="bg-white rounded-lg p-5 overflow-auto flex-grow print:p-0 print:m-0 print:overflow-auto print:rounded-none"
@@ -224,5 +293,9 @@
 
   .active {
     @apply bg-gradient-to-b from-slate-700 to-slate-800 text-slate-200;
+  }
+
+  .btn-header {
+    @apply flex items-center gap-2 bg-gradient-to-b from-green-500 to-green-600 text-slate-100 px-8 py-3 rounded-lg font-semibold duration-200 enabled:active:scale-90 disabled:grayscale enabled:cursor-pointer;
   }
 </style>

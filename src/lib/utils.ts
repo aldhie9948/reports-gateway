@@ -18,12 +18,12 @@ export function utcToDate(
 ) {
   if (!format) format = "DD/MM/YYYY";
   if (!dateString) return "-";
-  return moment.utc(dateString).locale("id").format(format);
+  return moment(dateString).utc(true).format(format);
 }
 
 export function dateParsed(date?: string) {
   if (!date) return "....................";
-  return moment.utc(date).locale("id").format("DD/MM/YYYY");
+  return moment(date).utc(true).format("DD/MM/YYYY");
 }
 
 export function numberFormat(nominal: string) {

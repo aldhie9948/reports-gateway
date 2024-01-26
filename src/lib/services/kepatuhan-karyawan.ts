@@ -2,17 +2,22 @@ import axios from "axios";
 import { axiosErrorHandler } from "../utils";
 import type {
   IKepatuhanPress,
+  IKepatuhanWelding,
   ISelectItems,
-  KepatuhanPressType,
+  KepatuhanMachineType,
+  KepatuhanSearchType,
 } from "../types";
 import moment from "moment";
 const API_URL = import.meta.env.VITE_API_URL.concat("kepatuhan-karyawan");
 
-export async function getSelectItemsByDate(text: string) {
+export async function getSelectItemsByDate(
+  text: string,
+  machine: KepatuhanMachineType
+) {
   try {
     if (!text) return [];
     const { data } = (await axios.get(
-      API_URL.concat("/press/select/date/", text)
+      API_URL.concat("/", machine, "/select/date/", text)
     )) as { data: ISelectItems[] };
     const formatted = data.map((d) => {
       const date = moment(d.value).utc(true).format("DD-MM-YYYY");
@@ -25,11 +30,14 @@ export async function getSelectItemsByDate(text: string) {
     return Promise.reject(message);
   }
 }
-export async function getSelectItemsByWorker(text: string) {
+export async function getSelectItemsByWorker(
+  text: string,
+  machine: KepatuhanMachineType
+) {
   try {
     if (!text) return [];
     const { data } = (await axios.get(
-      API_URL.concat("/press/select/worker/", text)
+      API_URL.concat("/", machine, "/select/worker/", text)
     )) as { data: ISelectItems[] };
     const formatted = data.map((d) => ({ ...d, label: d.label.toUpperCase() }));
     return formatted as ISelectItems[];
@@ -39,18 +47,17 @@ export async function getSelectItemsByWorker(text: string) {
   }
 }
 
-export async function getKepatuhanPress(
+export async function getKepatuhanKaryawan(
   text: string,
-  type: KepatuhanPressType
+  type: KepatuhanSearchType,
+  machine: KepatuhanMachineType
 ) {
   try {
     if (!text) return [];
-    const { data } = (await axios.get(
-      API_URL.concat("/press/", type, "/", text)
-    )) as {
-      data: IKepatuhanPress[];
-    };
-    return data;
+    const { data } = await axios.get(
+      API_URL.concat("/", machine, "/", type, "/", text)
+    );
+    return data as IKepatuhanPress[] | IKepatuhanWelding[];
   } catch (error) {
     return Promise.reject(axiosErrorHandler(error));
   }

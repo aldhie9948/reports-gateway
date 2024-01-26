@@ -14,6 +14,7 @@
     getURLSearchParams,
     getPlanIdFromURL,
   } from "../utils";
+  import { disableIsDown, onMouseDown, onMouseMove } from "../drag-scoll";
 
   let planProductionInfo: IRencanaProduksi;
   let planProductionDetail: IRencanaProduksiDetail[] = [];
@@ -64,7 +65,15 @@
     <p>FPSM-7-1-02/R5</p>
   </div>
 
-  <div class="w-full overflow-auto py-2 my-2">
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <div
+    class="w-full overflow-auto py-2 my-2"
+    id="parent-table"
+    on:mousedown={onMouseDown}
+    on:mouseleave={disableIsDown}
+    on:mouseup={disableIsDown}
+    on:mousemove={onMouseMove}
+  >
     <table class="w-full print:break-inside-auto" id="main-table">
       <thead>
         <th>No.</th>

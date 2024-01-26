@@ -1,32 +1,32 @@
 <script lang="ts">
   import moment from "moment";
-  import { getKepatuhanKaryawan } from "../services/kepatuhan-karyawan";
   import {
     contentLoading,
     currentKepatuhanSearchType,
     searchKeyword,
   } from "../store";
-  import type { IKepatuhanPress, KepatuhanSearchType } from "../types";
+  import type { IKepatuhanWelding, KepatuhanSearchType } from "../types";
   import { utcToDate } from "../utils";
+  import { getKepatuhanKaryawan } from "../services/kepatuhan-karyawan";
   import { disableIsDown, onMouseDown, onMouseMove } from "../drag-scoll";
 
-  let formPress: IKepatuhanPress[] = [];
+  let formWelding: IKepatuhanWelding[] = [];
   let tableType: KepatuhanSearchType = "date";
   let selectedDate: string;
-  async function fetchData(date: string, type: KepatuhanSearchType) {
+  async function fetchData(text: string, type: KepatuhanSearchType) {
     try {
       $contentLoading = true;
-      formPress = (await getKepatuhanKaryawan(
-        date,
+      formWelding = (await getKepatuhanKaryawan(
+        text,
         type,
-        "press"
-      )) as IKepatuhanPress[];
+        "welding"
+      )) as IKepatuhanWelding[];
       $contentLoading = false;
     } catch (error) {
       $contentLoading = false;
     }
   }
-  $: $searchKeyword, fetchData($searchKeyword, tableType);
+  $: fetchData($searchKeyword, tableType);
   $: selectedDate = $searchKeyword;
   $: tableType = $currentKepatuhanSearchType as KepatuhanSearchType;
 </script>
@@ -40,11 +40,11 @@
   on:mouseup={disableIsDown}
   on:mousemove={onMouseMove}
 >
-  <table id="table-kepatuhan-press">
+  <table id="main">
     <thead class="header">
       <tr class="bg-white">
         <th
-          colspan={tableType === "date" ? 32 : 33}
+          colspan={tableType === "date" ? 30 : 31}
           class="!border-none font-normal !p-0"
         >
           <p class="text-right">FPK-PROD-41-02/R0</p>
@@ -52,7 +52,7 @@
       </tr>
       <tr class="bg-white">
         <th
-          colspan={tableType === "date" ? 32 : 33}
+          colspan={tableType === "date" ? 30 : 31}
           class="!border-none font-normal !p-0"
         >
           <p class="text-left">
@@ -66,7 +66,7 @@
         </th>
       </tr>
       <tr>
-        <th colspan={tableType === "date" ? 32 : 33}
+        <th colspan={tableType === "date" ? 30 : 31}
           >FORM KONTROL KEPATUHAN OPERATOR</th
         >
       </tr>
@@ -81,21 +81,20 @@
         <td rowspan="3">NIK</td>
         <td rowspan="3">KODE MESIN</td>
         <td rowspan="3">PROSES</td>
-        <td colspan="12">KONDISI SAFETY MESIN</td>
-        <td colspan="6">KELENGKAPAN DAN SIKAP KERJA OPERATOR</td>
+        <td colspan="6">KONDISI SAFETY MESIN</td>
+        <td colspan="10">KELENGKAPAN DAN SIKAP KERJA OPERATOR</td>
         <td colspan="8">LINGKUNGAN KERJA</td>
         <td rowspan="3">CATATAN</td>
       </tr>
       <tr class="header break-header">
         <td colspan="2"><p>CHECK SHEET MESIN</p></td>
         <td colspan="2"><p>VERIFIKASI SET UP</p></td>
-        <td colspan="2"><p>SENSOR</p></td>
-        <td colspan="2"><p>KONDISI SENSOR</p></td>
         <td colspan="2"><p>SOP</p></td>
-        <td colspan="2"><p>KESESUAIAN SOP</p></td>
-        <td colspan="2"><p>EAR PLUG</p></td>
+        <td colspan="2"><p>TOPI KERJA</p></td>
         <td colspan="2"><p>SEPATU SAFETY</p></td>
-        <td colspan="2"><p>GANJAL TOMBOL</p></td>
+        <td colspan="2"><p>APPRON DADA</p></td>
+        <td colspan="2"><p>MASKER</p></td>
+        <td colspan="2"><p>ALAT BANTU KERJA</p></td>
         <td colspan="2"><p>OLI DAN SAMPAH</p></td>
         <td colspan="2"><p>LINE MESIN</p></td>
         <td colspan="2"><p>JIG PROSES</p></td>
@@ -108,35 +107,33 @@
         <td><p>TDK DIISI</p></td>
         <td><p>ADA</p></td>
         <td><p>TDK ADA</p></td>
-        <td><p>AKTIF</p></td>
-        <td><p>TDK AKTIF</p></td>
-        <td><p>ADA</p></td>
-        <td><p>TDK ADA</p></td>
-        <td><p>SESUAI</p></td>
-        <td><p>TDK SESUAI</p></td>
         <td><p>PAKAI</p></td>
         <td><p>TDK PAKAI</p></td>
         <td><p>PAKAI</p></td>
         <td><p>TDK PAKAI</p></td>
-        <td><p>YA</p></td>
-        <td><p>TIDAK</p></td>
+        <td><p>PAKAI</p></td>
+        <td><p>TDK PAKAI</p></td>
+        <td><p>PAKAI</p></td>
+        <td><p>TDK PAKAI</p></td>
+        <td><p>PAKAI</p></td>
+        <td><p>TDK PAKAI</p></td>
         <td><p>ADA</p></td>
         <td><p>TIDAK</p></td>
         <td><p>SESUAI</p></td>
         <td><p>TIDAK</p></td>
-        <td><p>KMBLI</p></td>
-        <td><p>TDK KMBLI</p></td>
+        <td><p>KEMBALI</p></td>
+        <td><p>TDK KMBL</p></td>
         <td><p>ADA</p></td>
         <td><p>TDK ADA</p></td>
       </tr>
-      {#if formPress.length < 1}
+      {#if formWelding.length < 1}
         <tr>
           <td colspan={tableType === "date" ? 32 : 33}>
             <p class="italic font-light">Data tidak ditemukan</p>
           </td>
         </tr>
       {:else}
-        {#each formPress as item, i (item.id)}
+        {#each formWelding as item, i (item.id)}
           <tr class="content">
             <td><p class="text-center">{i + 1}</p></td>
             {#if tableType === "worker"}
@@ -176,26 +173,6 @@
             >
             <td
               ><p class="text-center font-bold">
-                {item.sensor ? "✓" : ""}
-              </p></td
-            >
-            <td
-              ><p class="text-center font-bold">
-                {!item.sensor ? "✓" : ""}
-              </p></td
-            >
-            <td
-              ><p class="text-center font-bold">
-                {item.kondisi_sensor ? "✓" : ""}
-              </p></td
-            >
-            <td
-              ><p class="text-center font-bold">
-                {!item.kondisi_sensor ? "✓" : ""}
-              </p></td
-            >
-            <td
-              ><p class="text-center font-bold">
                 {item.sop ? "✓" : ""}
               </p></td
             >
@@ -206,22 +183,12 @@
             >
             <td
               ><p class="text-center font-bold">
-                {item.kesesuaian_sop ? "✓" : ""}
+                {item.topi_kerja ? "✓" : ""}
               </p></td
             >
             <td
               ><p class="text-center font-bold">
-                {!item.kesesuaian_sop ? "✓" : ""}
-              </p></td
-            >
-            <td
-              ><p class="text-center font-bold">
-                {item.ear_plug ? "✓" : ""}
-              </p></td
-            >
-            <td
-              ><p class="text-center font-bold">
-                {!item.ear_plug ? "✓" : ""}
+                {!item.topi_kerja ? "✓" : ""}
               </p></td
             >
             <td
@@ -236,12 +203,32 @@
             >
             <td
               ><p class="text-center font-bold">
-                {item.ganjal_tombol ? "✓" : ""}
+                {item.appron_dada ? "✓" : ""}
               </p></td
             >
             <td
               ><p class="text-center font-bold">
-                {!item.ganjal_tombol ? "✓" : ""}
+                {!item.appron_dada ? "✓" : ""}
+              </p></td
+            >
+            <td
+              ><p class="text-center font-bold">
+                {item.masker ? "✓" : ""}
+              </p></td
+            >
+            <td
+              ><p class="text-center font-bold">
+                {!item.masker ? "✓" : ""}
+              </p></td
+            >
+            <td
+              ><p class="text-center font-bold">
+                {item.alat_bantu_kerja ? "✓" : ""}
+              </p></td
+            >
+            <td
+              ><p class="text-center font-bold">
+                {!item.alat_bantu_kerja ? "✓" : ""}
               </p></td
             >
             <td
@@ -321,7 +308,7 @@
 </div>
 
 <style lang="scss">
-  #table-kepatuhan-press {
+  #main {
     @apply w-full;
     .header {
       @apply bg-slate-500/30 font-bold;
@@ -357,7 +344,7 @@
   }
 
   @media print {
-    #table-kepatuhan-press {
+    #main {
       font-size: 10px !important;
       line-height: 1rem;
       td,
