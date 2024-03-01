@@ -34,9 +34,7 @@ export interface ILaporanProduksi {
   NG: number;
   OK: number;
   keterangan: string;
-  lot: string;
-  nama_depan: string;
-  nama_belakang: string;
+  lot_material: string;
   nama_operator: string;
 }
 

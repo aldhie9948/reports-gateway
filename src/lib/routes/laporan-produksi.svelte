@@ -69,7 +69,7 @@
       <tr class="font-bold">
         <td colspan="2" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">No. Plan</span> : {reportSample?.lot ||
+            <span class="inline-block w-20">No. Plan</span> : {reportSample?.no_plan ||
               "-"}
           </p>
         </td>
@@ -102,6 +102,7 @@
         <th>TOTAL</th>
         <th>Keterangan</th>
         <th>LOT</th>
+        <th>No. Plan</th>
       </tr>
       <tbody>
         {#if reports.length === 0}
@@ -117,7 +118,7 @@
               <td class="!text-left"><p class="part">{report.barang}</p></td>
               <td class="!text-left operator"
                 ><p class="operator">
-                  {report.nama_operator === " " ? "-" : report.nama_operator}
+                  {report.nama_operator.trim() || "-"}
                 </p></td
               >
               <td>{!report.kode_mesin ? "-" : report.kode_mesin}</td>
@@ -140,7 +141,8 @@
                   {report.keterangan}
                 </p></td
               >
-              <td>{report.lot}</td>
+              <td>{report.lot_material || "-"}</td>
+              <td>{report.no_plan || "-"}</td>
             </tr>
           {/each}
         {/if}

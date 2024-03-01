@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from "@iconify/svelte";
+  import ExcellentExport from "excellentexport";
   import moment from "moment";
   import "moment/dist/locale/id";
   import { onMount } from "svelte";
@@ -24,9 +25,7 @@
     currentKepatuhanSearchType,
     searchKeyword,
     selectedValue,
-    showHeader,
   } from "./lib/store";
-  import ExcellentExport from "excellentexport";
 
   moment.locale("id");
   let placeholderSelect: string = "";
@@ -82,7 +81,6 @@
   function loadOptinsHandler(currentNav: string) {
     return async (text: string) => {
       try {
-        if (!text) return [];
         switch (currentNav) {
           case "portal-laporan":
             const lists = await findReports(text);
@@ -138,19 +136,23 @@
     return function (
       e: Event & { currentTarget: HTMLAnchorElement & EventTarget }
     ) {
-      if (!tableId || !exportedFilename) return e.preventDefault();
-      const target = e.currentTarget;
-      const table = document.querySelector(tableId) as HTMLTableElement;
-      ExcellentExport.excel(target, table, "Sheet1");
+      try {
+        if (!tableId) throw new Error("Table ID is undefined");
+        const target = e.currentTarget;
+        const table = document.querySelector(tableId) as HTMLTableElement;
+        return ExcellentExport.excel(target, table, "Sheet1");
+      } catch (error) {
+        console.log(error);
+        e.preventDefault();
+      }
     };
   }
 
   const basepath = import.meta.env.VITE_BASEPATH;
-  export let url = "";
 
   onMount(() => {
     const { pathname } = window.location;
-    if (pathname === "/") {
+    if (pathname === basepath) {
       selectedNav = activeNav = navItems[0].slug;
     } else {
       const currentNavItem = navItems.find((item) => {
@@ -158,7 +160,7 @@
         return regex.test(pathname);
       });
       if (!currentNavItem) return console.log("currentNavItem is undefined");
-      activeNav = currentNavItem.slug;
+      activeNav = selectedNav = currentNavItem.slug;
     }
   });
 
@@ -166,31 +168,29 @@
   $: selectedNav, ($searchKeyword = "");
   $: selectedNav, ($selectedValue = undefined);
   $: {
+    const space = $searchKeyword ? " " : "";
     switch (activeNav || selectedNav) {
       case "portal-laporan":
         placeholderSelect = "Cari nama part item..";
         exportedFilename = "Report Portal Laporan".concat(
-          $searchKeyword ? " " : "",
-          $searchKeyword || "",
-          ".xls"
+          space,
+          $searchKeyword || ""
         );
         exportedTableId = "#table-portal-laporan";
         break;
       case "laporan-produksi":
         placeholderSelect = "Cari nomor plan produksi..";
         exportedFilename = "Report Laporan Produksi".concat(
-          $searchKeyword ? " " : "",
-          $searchKeyword || "",
-          ".xls"
+          space,
+          $searchKeyword || ""
         );
         exportedTableId = "#table-laporan-produksi";
         break;
       case "rencana-produksi":
         placeholderSelect = "Cari nomor plan produksi..";
         exportedFilename = "Report Rencana Produksi".concat(
-          $searchKeyword ? " " : "",
-          $searchKeyword || "",
-          ".xls"
+          space,
+          $searchKeyword || ""
         );
         exportedTableId = "#table-rencana-produksi";
         break;
@@ -200,9 +200,8 @@
           `), nama atau nik karyawan`
         );
         exportedFilename = "Report Kepatuhan Press".concat(
-          $searchKeyword ? " " : "",
-          $searchKeyword || "",
-          ".xls"
+          space,
+          $searchKeyword || ""
         );
         exportedTableId = "#table-kepatuhan-press";
         break;
@@ -212,9 +211,8 @@
           `), nama atau nik karyawan`
         );
         exportedFilename = "Report Kepatuhan Welding".concat(
-          $searchKeyword ? " " : "",
-          $searchKeyword || "",
-          ".xls"
+          space,
+          $searchKeyword || ""
         );
         exportedTableId = "#table-kepatuhan-welding";
         break;
@@ -275,19 +273,20 @@
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <!-- svelte-ignore a11y-missing-attribute -->
       <a
-        download={exportedFilename}
+        href="#"
+        download={exportedFilename.concat(".xls")}
         on:click={exportExcel(exportedTableId)}
-        class="btn-header"
-        title="Export to excel"
       >
-        <Icon icon="icon-park-outline:excel" class="text-lg" />
-        <h1>Export</h1>
+        <button class="btn-header">
+          <Icon icon="icon-park-outline:excel" class="text-lg" />
+          <h1>Export</h1>
+        </button>
       </a>
     </div>
     <div
       class="bg-white rounded-lg p-5 overflow-auto flex-grow print:p-0 print:m-0 print:overflow-auto print:rounded-none"
     >
-      <Router {url} {basepath}>
+      <Router {basepath}>
         {#each navItems as item, i (i)}
           <Route component={item.component} path={"/" + item.slug} />
         {/each}
