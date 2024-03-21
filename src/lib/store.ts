@@ -6,3 +6,4 @@ export const contentLoading = writable<boolean>(false);
 export const showHeader = writable<boolean>(false);
 export const selectedValue = writable<ISelectItems | undefined>();
 export const currentKepatuhanSearchType = writable<KepatuhanSearchType>("date");
+export const isTemplateActive = writable<boolean>(false);

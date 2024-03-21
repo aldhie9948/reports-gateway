@@ -1,7 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { getPlanDetail } from "../services/laporan-produksi";
-  import { contentLoading, searchKeyword, showHeader } from "../store";
+  import {
+    contentLoading,
+    isTemplateActive,
+    searchKeyword,
+    showHeader,
+  } from "../store";
   import type { ILaporanProduksi } from "../types";
   import { getPlanIdFromURL, getURLSearchParams, utcToDate } from "../utils";
   import { disableIsDown, onMouseDown, onMouseMove } from "../drag-scoll";
@@ -9,11 +14,28 @@
   let reports: ILaporanProduksi[] = [];
   let reportSample: ILaporanProduksi;
   let planId: string;
+  let table: HTMLTableElement;
 
   async function fetchPlan(planId: string) {
     try {
       $contentLoading = true;
-      reports = (await getPlanDetail(planId)) as ILaporanProduksi[];
+      const results = await getPlanDetail(planId);
+      if ($isTemplateActive) {
+        reports = results.map((r) => ({
+          ...r,
+          "01": 0,
+          "02": 0,
+          "03": 0,
+          "04": 0,
+          "05": 0,
+          "06": 0,
+          "07": 0,
+          NG: 0,
+          OK: 0,
+        }));
+      } else {
+        reports = results;
+      }
       $contentLoading = false;
     } catch (error) {
       $contentLoading = false;
@@ -21,7 +43,7 @@
   }
 
   $: planId = getPlanIdFromURL();
-  $: fetchPlan($searchKeyword || planId);
+  $: $isTemplateActive, fetchPlan($searchKeyword || planId);
   $: if (Array.isArray(reports) && reports.length > 0) {
     reportSample = reports[0];
   } else {
@@ -34,13 +56,14 @@
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
     class="overflow-auto mb-2 px-1 pb-1"
+    style="page-break-after: always;"
     id="parent-table"
     on:mousedown={onMouseDown}
     on:mouseleave={disableIsDown}
     on:mouseup={disableIsDown}
     on:mousemove={onMouseMove}
   >
-    <table class="report" id="table-laporan-produksi">
+    <table class="report" id="table-laporan-produksi" bind:this={table}>
       <tr>
         <td colspan="18" class="border-none">
           <p class="font-bold text-3xl">LAPORAN PRODUKSI HARIAN</p>
@@ -55,30 +78,36 @@
       <tr class="font-bold">
         <td colspan="2" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">Shift</span> : {reportSample?.shift ||
-              "-"}
+            <span class="inline-block w-20">Shift</span> : {$isTemplateActive
+              ? ""
+              : reportSample?.shift || "-"}
           </p>
         </td>
         <td colspan="3" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">Bagian</span> : {reportSample?.nama_area ||
-              "-"}
+            <span class="inline-block w-20">Bagian</span> : {$isTemplateActive
+              ? ""
+              : reportSample?.nama_area || "-"}
           </p>
         </td>
       </tr>
       <tr class="font-bold">
         <td colspan="2" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">No. Plan</span> : {reportSample?.no_plan ||
-              "-"}
+            <span class="inline-block w-20">No. Plan</span> : {$isTemplateActive
+              ? ""
+              : reportSample?.no_plan || "-"}
           </p>
         </td>
         <td colspan="3" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">Tanggal</span> : {utcToDate(
-              reportSample?.start
-            ) || "-"} <span class="inline-block w-10 text-center">s/d</span>
-            {utcToDate(reportSample?.finish) || "-"}
+            <span class="inline-block w-20">Tanggal</span> : {$isTemplateActive
+              ? ""
+              : utcToDate(reportSample?.start) || "-"}
+            {#if !$isTemplateActive}
+              <span class="inline-block w-10 text-center">s/d</span>
+            {/if}
+            {$isTemplateActive ? "" : utcToDate(reportSample?.finish) || "-"}
           </p>
         </td>
       </tr>
@@ -107,7 +136,7 @@
       <tbody>
         {#if reports.length === 0}
           <tr>
-            <td colspan="18" class="italic"
+            <td colspan="19" class="italic"
               >Laporan tidak ditemukan atau tidak ada</td
             >
           </tr>
@@ -117,32 +146,68 @@
               <td>{i + 1}</td>
               <td class="!text-left"><p class="part">{report.barang}</p></td>
               <td class="!text-left operator"
-                ><p class="operator">
-                  {report.nama_operator.trim() || "-"}
+                ><p class="min-w-32">
+                  {$isTemplateActive ? "" : report.nama_operator.trim() || "-"}
                 </p></td
               >
-              <td>{!report.kode_mesin ? "-" : report.kode_mesin}</td>
-              <td>{utcToDate(report.start, "HH:mm")}</td>
-              <td>{utcToDate(report.finish, "HH:mm")}</td>
-              <td>{report["01"] < 1 ? "-" : report["01"]}</td>
-              <td>{report["02"] < 1 ? "-" : report["02"]}</td>
-              <td>{report["03"] < 1 ? "-" : report["03"]}</td>
-              <td>{report["04"] < 1 ? "-" : report["04"]}</td>
-              <td>{report["05"] < 1 ? "-" : report["05"]}</td>
-              <td>{report["06"] < 1 ? "-" : report["06"]}</td>
-              <td>{report["07"] < 1 ? "-" : report["07"]}</td>
-              <td>{report.OK < 1 ? "-" : report.OK}</td>
-              <td>{report.NG < 1 ? "-" : report.NG}</td>
-              <td>
-                {report.OK - report.NG < 1 ? "-" : report.OK - report.NG}</td
+              <td>{$isTemplateActive ? "" : report.kode_mesin || "-"}</td>
+              <td
+                ><p class="min-w-16">
+                  {$isTemplateActive
+                    ? ""
+                    : utcToDate(report.start, "HH:mm") || "-"}
+                </p></td
+              >
+              <td
+                ><p class="min-w-16">
+                  {$isTemplateActive
+                    ? ""
+                    : utcToDate(report.finish, "HH:mm") || "-"}
+                </p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report["01"] || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report["02"] || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report["03"] || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report["04"] || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report["05"] || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report["06"] || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report["07"] || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report.OK || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report.NG || "-"}</p></td
+              >
+              <td class="template-td"
+                ><p>
+                  {$isTemplateActive ? "" : report.OK - report.NG || "-"}
+                </p></td
               >
               <td class="!text-left print:whitespace-normal print:w-40 w-20"
                 ><p>
-                  {report.keterangan}
+                  {$isTemplateActive ? "" : report.keterangan || "-"}
                 </p></td
               >
-              <td>{report.lot_material || "-"}</td>
-              <td>{report.no_plan || "-"}</td>
+              <td
+                ><p>
+                  {$isTemplateActive ? "" : report.lot_material || "-"}
+                </p></td
+              >
+              <td><p>{$isTemplateActive ? "" : report.no_plan || "-"}</p></td>
             </tr>
           {/each}
         {/if}
@@ -200,5 +265,9 @@
     td {
       @apply border border-slate-800;
     }
+  }
+
+  .template-td p {
+    @apply min-w-10;
   }
 </style>

@@ -15,6 +15,7 @@
   import RencanaProduksi from "./lib/routes/rencana-produksi.svelte";
   import {
     getSelectItemsByDate,
+    getSelectItemsByMonth,
     getSelectItemsByWorker,
   } from "./lib/services/kepatuhan-karyawan";
   import { getPlansList } from "./lib/services/laporan-produksi";
@@ -23,6 +24,7 @@
   import {
     contentLoading,
     currentKepatuhanSearchType,
+    isTemplateActive,
     searchKeyword,
     selectedValue,
   } from "./lib/store";
@@ -90,22 +92,35 @@
             }));
           case "laporan-produksi":
             return await getPlansList(text);
+
           case "rencana-produksi":
             return await findPlanProduction(text);
+
           case "kepatuhan-press":
+            const byMonthPress = await getSelectItemsByMonth(text, "press");
+            if (byMonthPress.length) {
+              $currentKepatuhanSearchType = "worker";
+              return byMonthPress;
+            }
             const byDatePress = await getSelectItemsByDate(text, "press");
-            if (byDatePress.length > 0) {
+            if (byDatePress.length) {
               $currentKepatuhanSearchType = "date";
               return byDatePress;
             }
             const byWorkerPress = await getSelectItemsByWorker(text, "press");
-            if (byWorkerPress.length > 0) {
+            if (byWorkerPress.length) {
               $currentKepatuhanSearchType = "worker";
               return byWorkerPress;
             }
+
           case "kepatuhan-welding":
+            const byMonthWelding = await getSelectItemsByMonth(text, "welding");
+            if (byMonthWelding.length) {
+              $currentKepatuhanSearchType = "worker";
+              return byMonthWelding;
+            }
             const byDateWelding = await getSelectItemsByDate(text, "welding");
-            if (byDateWelding.length > 0) {
+            if (byDateWelding.length) {
               $currentKepatuhanSearchType = "date";
               return byDateWelding;
             }
@@ -113,7 +128,7 @@
               text,
               "welding"
             );
-            if (byWorkerWelding.length > 0) {
+            if (byWorkerWelding.length) {
               $currentKepatuhanSearchType = "worker";
               return byWorkerWelding;
             }
@@ -197,7 +212,7 @@
       case "kepatuhan-press":
         placeholderSelect = `Cari tanggal (ex: `.concat(
           moment().format("DD-MM-YYYY"),
-          `), nama atau nik karyawan`
+          `), bulan, nama atau nik karyawan`
         );
         exportedFilename = "Report Kepatuhan Press".concat(
           space,
@@ -208,7 +223,7 @@
       case "kepatuhan-welding":
         placeholderSelect = `Cari tanggal (ex: `.concat(
           moment().format("DD-MM-YYYY"),
-          `), nama atau nik karyawan`
+          `), bulan, nama atau nik karyawan`
         );
         exportedFilename = "Report Kepatuhan Welding".concat(
           space,
@@ -269,9 +284,20 @@
         <Icon icon="material-symbols:print" class="text-lg" />
         <h1>Cetak</h1>
       </button>
+      {#if [activeNav, selectedNav].includes("laporan-produksi")}
+        <button
+          class="btn-header"
+          class:template-active={$isTemplateActive}
+          on:click={() => ($isTemplateActive = !$isTemplateActive)}
+        >
+          <Icon icon="tabler:template" class="text-lg" />
+          <h1>Template</h1>
+        </button>
+      {/if}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <!-- svelte-ignore a11y-missing-attribute -->
+      <!-- svelte-ignore a11y-invalid-attribute -->
       <a
         href="#"
         download={exportedFilename.concat(".xls")}
@@ -306,5 +332,9 @@
 
   .btn-header {
     @apply flex items-center gap-2 bg-gradient-to-b from-green-500 to-green-600 text-slate-100 px-8 py-3 rounded-lg font-semibold duration-200 enabled:active:scale-90 disabled:grayscale enabled:cursor-pointer;
+  }
+
+  .template-active {
+    @apply from-slate-50 to-slate-100 text-green-500;
   }
 </style>
