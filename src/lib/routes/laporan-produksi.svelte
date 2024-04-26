@@ -1,20 +1,13 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { getPlanDetail } from "../services/laporan-produksi";
-  import {
-    contentLoading,
-    isTemplateActive,
-    searchKeyword,
-    showHeader,
-  } from "../store";
-  import type { ILaporanProduksi } from "../types";
-  import { getPlanIdFromURL, getURLSearchParams, utcToDate } from "../utils";
   import { disableIsDown, onMouseDown, onMouseMove } from "../drag-scoll";
+  import { getPlanDetail } from "../services/laporan-produksi";
+  import { contentLoading, isTemplateActive, searchKeyword } from "../store";
+  import type { ILaporanProduksi } from "../types";
+  import { getPlanIdFromURL, utcToDate } from "../utils";
 
   let reports: ILaporanProduksi[] = [];
   let reportSample: ILaporanProduksi;
   let planId: string;
-  let table: HTMLTableElement;
 
   async function fetchPlan(planId: string) {
     try {
@@ -50,20 +43,23 @@
     // @ts-ignore
     reportSample = undefined;
   }
+  $: if ($isTemplateActive && $searchKeyword)
+    getPlanDetail($searchKeyword).then((data) => {
+      if (data.length) reportSample = data[0];
+    });
 </script>
 
 <div class="w-full print:pb-20">
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
     class="overflow-auto mb-2 px-1 pb-1"
-    style="page-break-after: always;"
     id="parent-table"
     on:mousedown={onMouseDown}
     on:mouseleave={disableIsDown}
     on:mouseup={disableIsDown}
     on:mousemove={onMouseMove}
   >
-    <table class="report" id="table-laporan-produksi" bind:this={table}>
+    <table class="report" id="table-laporan-produksi">
       <tr>
         <td colspan="18" class="border-none">
           <p class="font-bold text-3xl">LAPORAN PRODUKSI HARIAN</p>
@@ -78,36 +74,31 @@
       <tr class="font-bold">
         <td colspan="2" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">Shift</span> : {$isTemplateActive
-              ? ""
-              : reportSample?.shift || "-"}
+            <span class="inline-block w-20">Shift</span> : {reportSample?.shift ||
+              "-"}
           </p>
         </td>
         <td colspan="3" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">Bagian</span> : {$isTemplateActive
-              ? ""
-              : reportSample?.nama_area || "-"}
+            <span class="inline-block w-20">Bagian</span> : {reportSample?.nama_area ||
+              "-"}
           </p>
         </td>
       </tr>
       <tr class="font-bold">
         <td colspan="2" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">No. Plan</span> : {$isTemplateActive
-              ? ""
-              : reportSample?.no_plan || "-"}
+            <span class="inline-block w-20">No. Plan</span> : {reportSample?.no_plan ||
+              "-"}
           </p>
         </td>
         <td colspan="3" class="border-none">
           <p class="text-left">
-            <span class="inline-block w-20">Tanggal</span> : {$isTemplateActive
-              ? ""
-              : utcToDate(reportSample?.start) || "-"}
-            {#if !$isTemplateActive}
-              <span class="inline-block w-10 text-center">s/d</span>
-            {/if}
-            {$isTemplateActive ? "" : utcToDate(reportSample?.finish) || "-"}
+            <span class="inline-block w-20">Tanggal</span> : {utcToDate(
+              reportSample?.start
+            ) || "-"}
+            <span class="inline-block w-10 text-center">s/d</span>
+            {utcToDate(reportSample?.finish) || "-"}
           </p>
         </td>
       </tr>
