@@ -117,7 +117,10 @@
               <td><p class="w-[5rem]" /></td>
               <td><p class="w-[5rem]" /></td>
               <td><p class="w-[5rem]" /></td>
-              <td><p class="w-[10rem]" /></td>
+              <td
+                ><p class="w-[10rem]" />
+                {item.keterangan}</td
+              >
             </tr>
           {/each}
         {/if}
