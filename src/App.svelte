@@ -279,6 +279,7 @@
         bind:value={$selectedValue}
         loadOptions={loadOptinsHandler(activeNav || selectedNav)}
         placeholder={placeholderSelect}
+        debounceWait={1000}
       />
       <button on:click={printPage} class="btn-header">
         <Icon icon="material-symbols:print" class="text-lg" />

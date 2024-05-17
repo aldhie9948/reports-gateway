@@ -31,6 +31,7 @@ export interface ILaporanProduksi {
   "05": number;
   "06": number;
   "07": number;
+  "08": number;
   NG: number;
   OK: number;
   keterangan: string;

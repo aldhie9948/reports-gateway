@@ -23,6 +23,7 @@
           "05": 0,
           "06": 0,
           "07": 0,
+          "08": 0,
           NG: 0,
           OK: 0,
         }));
@@ -117,6 +118,9 @@
         <th>V</th>
         <th>VI</th>
         <th>VII</th>
+        {#if reportSample?.no_bagian === "T4"}
+          <th>VIII</th>
+        {/if}
         <th>OK</th>
         <th>NG</th>
         <th>TOTAL</th>
@@ -177,6 +181,13 @@
               <td class="template-td"
                 ><p>{$isTemplateActive ? "" : report["07"] || "-"}</p></td
               >
+              {#if reportSample?.no_bagian === "T4"}
+                <td class="template-td">
+                  <p>
+                    {$isTemplateActive ? "" : report["08"] || "-"}
+                  </p>
+                </td>
+              {/if}
               <td class="template-td"
                 ><p>{$isTemplateActive ? "" : report.OK || "-"}</p></td
               >
