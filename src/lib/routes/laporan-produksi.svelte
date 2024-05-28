@@ -111,6 +111,7 @@
         <th>No. Mesin</th>
         <th>Start</th>
         <th>Finish</th>
+        <th>Plan</th>
         <th>I</th>
         <th>II</th>
         <th>III</th>
@@ -131,7 +132,7 @@
       <tbody>
         {#if reports.length === 0}
           <tr>
-            <td colspan="19" class="italic"
+            <td colspan="20" class="italic"
               >Laporan tidak ditemukan atau tidak ada</td
             >
           </tr>
@@ -159,6 +160,9 @@
                     ? ""
                     : utcToDate(report.finish, "HH:mm") || "-"}
                 </p></td
+              >
+              <td class="template-td"
+                ><p>{$isTemplateActive ? "" : report.plan || "-"}</p></td
               >
               <td class="template-td"
                 ><p>{$isTemplateActive ? "" : report["01"] || "-"}</p></td
