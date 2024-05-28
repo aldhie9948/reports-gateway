@@ -161,9 +161,7 @@
                     : utcToDate(report.finish, "HH:mm") || "-"}
                 </p></td
               >
-              <td class="template-td"
-                ><p>{$isTemplateActive ? "" : report.plan || "-"}</p></td
-              >
+              <td class="template-td"><p>{report.plan || "-"}</p></td>
               <td class="template-td"
                 ><p>{$isTemplateActive ? "" : report["01"] || "-"}</p></td
               >
