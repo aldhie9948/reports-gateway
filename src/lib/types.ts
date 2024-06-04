@@ -35,8 +35,10 @@ export interface ILaporanProduksi {
   NG: number;
   OK: number;
   keterangan: string;
+  ket_rencana_produksi: string;
   lot_material: string;
   nama_operator: string;
+  nama_pic: string;
 }
 
 export interface IRencanaProduksi {

@@ -203,7 +203,7 @@
               >
               <td class="!text-left print:whitespace-normal print:w-40 w-20"
                 ><p>
-                  {$isTemplateActive ? "" : report.keterangan || "-"}
+                  {[report.keterangan, report.ket_rencana_produksi].join(" ")}
                 </p></td
               >
               <td
@@ -225,10 +225,15 @@
         <td><p class="lg:w-36">Diperiksa</p></td>
         <td><p class="lg:w-36">Dibuat</p></td>
       </tr>
-      <tr>
-        <td><div class="py-12" /></td>
-        <td><div class="py-12" /></td>
-        <td><div class="py-12" /></td>
+      <tr class="footer-ttd">
+        <td><div /></td>
+        <td><div /></td>
+        <td><div /></td>
+      </tr>
+      <tr class="font-bold footer-name">
+        <td>{reportSample?.nama_pic || "-"}</td>
+        <td class="font-normal">{Array(30).fill(".").join("")}</td>
+        <td class="font-normal">{Array(30).fill(".").join("")}</td>
       </tr>
       <tr class="font-bold">
         <td>Planner</td>
@@ -268,6 +273,19 @@
   .footer {
     td {
       @apply border border-slate-800;
+    }
+    .footer-name {
+      td {
+        @apply border-0 border-l border-r;
+      }
+    }
+    .footer-ttd {
+      div {
+        @apply py-10;
+      }
+      td {
+        @apply border-b-0;
+      }
     }
   }
 
