@@ -231,7 +231,7 @@
         <td><div /></td>
       </tr>
       <tr class="font-bold footer-name">
-        <td>{reportSample?.nama_pic || "-"}</td>
+        <td>{reportSample?.nama_pic || Array(30).fill(".").join("")}</td>
         <td class="font-normal">{Array(30).fill(".").join("")}</td>
         <td class="font-normal">{Array(30).fill(".").join("")}</td>
       </tr>
