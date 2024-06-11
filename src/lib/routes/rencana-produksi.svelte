@@ -1,35 +1,45 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import moment from "moment";
   import logo from "../../assets/logo.png";
+  import { disableIsDown, onMouseDown, onMouseMove } from "../drag-scoll";
   import {
     getPlanProduction,
     getPlanProductionDetail,
   } from "../services/rencana-produksi";
   import { contentLoading, searchKeyword } from "../store";
   import type { IRencanaProduksi, IRencanaProduksiDetail } from "../types";
-  import {
-    dateParsed,
-    reduce,
-    numberFormat,
-    getURLSearchParams,
-    getPlanIdFromURL,
-  } from "../utils";
-  import { disableIsDown, onMouseDown, onMouseMove } from "../drag-scoll";
+  import { getPlanIdFromURL, numberFormat, reduce } from "../utils";
 
   let planProductionInfo: IRencanaProduksi;
   let planProductionDetail: IRencanaProduksiDetail[] = [];
   let planId: string;
+
+  let startDate: string;
+  let endDate: string;
 
   async function fetchData(planId: string) {
     try {
       $contentLoading = true;
       planProductionInfo = await getPlanProduction(planId);
       planProductionDetail = await getPlanProductionDetail(planId);
+      const date = getDate(planId);
+      startDate = moment(date, "DDMMYY").format("DD/MM/YYYY");
+      const isShift3 = planProductionInfo.shift === "03" ? 1 : 0;
+      endDate = moment(date, "DDMMYY")
+        .add(isShift3, "day")
+        .format("DD/MM/YYYY");
       $contentLoading = false;
     } catch (error) {
       $contentLoading = false;
     }
   }
+
+  const getDate = (plan: string) => {
+    if (!plan) return null;
+    const [_p, _s, dateString] = plan.split("-");
+    if (!dateString) return null;
+    return dateString;
+  };
 
   $: planId = getPlanIdFromURL();
   $: fetchData($searchKeyword || planId);
@@ -48,22 +58,20 @@
       RENCANA PRODUKSI HARIAN
     </p>
   </div>
-  <div class="flex justify-between items-center my-2">
-    <p>Shift : {planProductionInfo?.shift || "-"}</p>
-    <p>Bagian : {planProductionInfo?.bagian.toUpperCase() || "-"}</p>
-    <div class="flex items-center gap-2">
-      <p>Tgl. Plan :</p>
-      <p>
-        {dateParsed(planProductionInfo?.start)}
-      </p>
-      <p>-s/d-</p>
-      <p>
-        {dateParsed(planProductionInfo?.end)}
-      </p>
+  {#if planProductionInfo}
+    <div class="flex justify-between items-center my-2">
+      <p>Shift : {planProductionInfo?.shift || "-"}</p>
+      <p>Bagian : {planProductionInfo?.bagian.toUpperCase() || "-"}</p>
+      <div class="flex items-center gap-2">
+        <p>Tgl. Plan :</p>
+        <p>{startDate}</p>
+        <p>-s/d-</p>
+        <p>{endDate}</p>
+      </div>
+      <p>No. Plan : <strong>{planProductionInfo?.plan_no || "-"}</strong></p>
+      <p>FPSM-7-1-02/R5</p>
     </div>
-    <p>No. Plan : <strong>{planProductionInfo?.plan_no || "-"}</strong></p>
-    <p>FPSM-7-1-02/R5</p>
-  </div>
+  {/if}
 
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
