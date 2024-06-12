@@ -53,7 +53,7 @@
 <div class="w-full print:pb-20">
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
-    class="overflow-auto mb-2 px-1 pb-1"
+    class="overflow-auto mb-14 px-1 pb-1"
     id="parent-table"
     on:mousedown={onMouseDown}
     on:mouseleave={disableIsDown}
